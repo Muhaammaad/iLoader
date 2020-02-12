@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">iLoader Application</string>
+    <string name="main_photo">main photo</string>
+    <string name="user_profile_photo">user profile photo</string>
+</resources>
