@@ -24,16 +24,19 @@
 
             <ImageView
                 android:id="@+id/ivMainPhoto"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:background="@android:color/darker_gray"
                 android:contentDescription="@string/main_photo"
+                android:minHeight="200dp"
                 android:scaleType="centerCrop"
+                app:errorPlaceholder="@{@drawable/ic_error_placeholder}"
                 app:layout_constraintBottom_toTopOf="@+id/lyUser"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:loadImage="@{photo}" />
+                app:placeholder="@{@drawable/ic_placeholder}"
+                app:src="@{photo.urls.regular}" />
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/crdLyAvatar"
@@ -50,7 +53,9 @@
                     android:layout_height="match_parent"
                     android:contentDescription="@string/user_profile_photo"
                     android:scaleType="centerCrop"
-                    app:loadAvatar="@{photo.user}" />
+                    app:errorPlaceholder="@{@drawable/ic_error_placeholder}"
+                    app:placeholder="@{@drawable/ic_person_placeholder}"
+                    app:src="@{photo.user.profileImage.large}" />
             </androidx.cardview.widget.CardView>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -58,37 +63,41 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:visibility="@{photo.user.username.empty ? View.GONE : View.VISIBLE}"
+                android:visibility="@{photo.user.name.empty ? View.GONE : View.VISIBLE}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/ivMainPhoto">
 
                 <TextView
-                    android:id="@+id/tvUsername"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="@{photo.user.username}"
-                    android:textColor="@android:color/black"
-                    android:textStyle="bold"
-                    android:visibility="@{photo.user.username.empty ? View.GONE : View.VISIBLE}"
-                    app:layout_constraintBottom_toTopOf="@+id/tvName"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="Profile username" />
-
-                <TextView
                     android:id="@+id/tvName"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:singleLine="true"
                     android:text="@{photo.user.name}"
+                    android:textColor="@android:color/black"
+                    android:textStyle="bold"
                     android:visibility="@{photo.user.name.empty ? View.GONE : View.VISIBLE}"
+                    app:layout_constraintBottom_toTopOf="@+id/tvUsername"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Profile name" />
+
+                <TextView
+                    android:id="@+id/tvUsername"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@{`@`.concat(photo.user.username)}"
+                    android:textSize="12sp"
+                    android:visibility="@{photo.user.username.empty ? View.GONE : View.VISIBLE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvUsername"
-                    tools:text="Profile name" />
+                    app:layout_constraintTop_toBottomOf="@+id/tvName"
+                    tools:text="Profile username" />
+
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>

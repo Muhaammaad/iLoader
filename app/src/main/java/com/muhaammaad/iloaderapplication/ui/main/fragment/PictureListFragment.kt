@@ -2,6 +2,7 @@ package  com.muhaammaad.iloaderapplication.ui.main.fragment
 
 
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,12 +11,13 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.muhaammaad.iloaderapplication.R
 import com.muhaammaad.iloaderapplication.databinding.FragmentPictureListBinding
 import com.muhaammaad.iloaderapplication.ui.main.adapter.PictureListAdapter
 import com.muhaammaad.iloaderapplication.ui.main.viewmodel.MainViewModel
+import com.muhaammaad.iloaderapplication.util.EndlessRecyclerViewScrollListener
 import com.muhaammaad.iloaderapplication.util.showShortDurationSnackBar
 
 
@@ -24,11 +26,11 @@ import com.muhaammaad.iloaderapplication.util.showShortDurationSnackBar
  */
 class PictureListFragment : Fragment() {
 
-    private val GRID_ITEMS_PER_ROW: Int = 2
+    private val ITEMS_PER_ROW: Int = 2
     private var sharedViewModel: MainViewModel? = null
     private lateinit var mPictureListAdapter: PictureListAdapter
     private lateinit var binding: FragmentPictureListBinding
-    private lateinit var mGridLayoutManager: GridLayoutManager
+    private lateinit var mLayoutManager: StaggeredGridLayoutManager
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,14 +50,17 @@ class PictureListFragment : Fragment() {
 
         mPictureListAdapter =
             PictureListAdapter(activity!!, sharedViewModel?.mPictureDetailsList?.values!!)
-        mGridLayoutManager =
+        mLayoutManager =
             if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                GridLayoutManager(activity, GRID_ITEMS_PER_ROW.times(2))
+                StaggeredGridLayoutManager(
+                    ITEMS_PER_ROW.plus(ITEMS_PER_ROW),
+                    StaggeredGridLayoutManager.VERTICAL
+                )
             } else {
-                GridLayoutManager(activity, GRID_ITEMS_PER_ROW)
+                StaggeredGridLayoutManager(ITEMS_PER_ROW, StaggeredGridLayoutManager.VERTICAL)
             }
         binding.recyclerView.apply {
-            layoutManager = mGridLayoutManager
+            layoutManager = mLayoutManager
             adapter = mPictureListAdapter
         }
 
@@ -87,27 +92,10 @@ class PictureListFragment : Fragment() {
      */
     private fun setScrollListenerToLoadMoreItems() {
         sharedViewModel?.let {
-            val scrollListener = object : RecyclerView.OnScrollListener() {
-                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                    super.onScrollStateChanged(recyclerView, newState)
-                    it.visibleItemCounter = binding.recyclerView.childCount
-                    it.totalItemCounter = mGridLayoutManager.itemCount
-                    it.firstVisibleItem = mGridLayoutManager.findFirstVisibleItemPosition()
-
-                    if (it.processingNewItem) {
-                        if (it.totalItemCounter > it.previousTotalItem) {
-                            it.processingNewItem = false
-                            it.previousTotalItem = it.totalItemCounter
-                            it.pageCounter++
-                        }
-                    }
-
-                    if (!it.processingNewItem &&
-                        (it.totalItemCounter - it.visibleItemCounter) <= (it.firstVisibleItem + it.visibleThresholdItem)
-                    ) {
-
+            val scrollListener = object : EndlessRecyclerViewScrollListener(mLayoutManager) {
+                override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         it.getPictureListData()
-                        it.processingNewItem = true
                     }
                 }
             }

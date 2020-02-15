@@ -2,4 +2,7 @@
     <string name="app_name">iLoader Application</string>
     <string name="main_photo">main photo</string>
     <string name="user_profile_photo">user profile photo</string>
+    <string name="loading_image">Loading More Pictures…</string>
+    <string name="fetch_image_success">Fetch Image Success…</string>
+    <string name="fetch_image_fail">Fetch Image failed…</string>
 </resources>

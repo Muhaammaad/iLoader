@@ -4,11 +4,13 @@ import android.app.Application
 import androidx.databinding.ObservableArrayMap
 import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.AndroidViewModel
+import com.muhaammaad.iloader.base.ILoader
+import com.muhaammaad.iloader.callback.CompletionCallback
+import com.muhaammaad.iloader.util.Mapper
+import com.muhaammaad.iloaderapplication.R
+import com.muhaammaad.iloaderapplication.mapper.PictureListMapper
 import com.muhaammaad.iloaderapplication.model.Picture
-import com.muhaammaad.iloaderapplication.model.ProfileImage
-import com.muhaammaad.iloaderapplication.model.User
 import com.muhaammaad.iloaderapplication.util.SingleLiveEvent
-import kotlin.random.Random
 
 /**
  * ViewModel to handle Main Activity view and pictureListFragment
@@ -17,16 +19,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     //region Member properties
     val mImagesLoading: SingleLiveEvent<String> = SingleLiveEvent()
-    var mPictureDetailsList = ObservableArrayMap<Long, Picture>()
-    var visibleItemCounter: Int = 0
-    val pageOffset: Int = 10
-    var totalItemCounter: Int = 0
-    var firstVisibleItem: Int = 0
-    var pageCounter = 1
-    var previousTotalItem = 0
-    val visibleThresholdItem = 4
-    var processingNewItem = true
-    var index = 0
+    var mPictureDetailsList = ObservableArrayMap<String, Picture>()
     var progressDialog: ObservableBoolean = ObservableBoolean()
     //endregion
 
@@ -36,66 +29,77 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
     //endregion
     //region Image data Fetching
-    /***
-     * fetch and set images
+    /**
+     * fetch images
      */
     fun getPictureListData() {
-        setLoadingMessage("Loading More Pictures...")
-        setProgressDialog(true)
-        getDummyData().let {
-            setProgressDialog(false)
-            mPictureDetailsList.putAll(it)
-        }
-
-    }
-
-    /***
-     * returns dummy images
-     */
-    private fun getDummyData(): HashMap<Long, Picture> {
-        val tempPictureDetailsList = HashMap<Long, Picture>();
-        for (i in 0..pageOffset) {
-            tempPictureDetailsList.put(
-                index.toLong(),
-                Picture(
-                    user = User(
-                        profileImage = ProfileImage(
-                            small = if (Random.nextInt(
-                                    0,
-                                    10
-                                ) % 2 == 0
-                            ) "0" else ""
-                        ),
-                        id = index.toString(),
-                        username = if (Random.nextInt(
-                                0,
-                                10
-                            ) % 2 == 0
-                        ) "UserName".plus(index) else "",
-                        name = if (Random.nextInt(0, 10) % 2 == 0) "Name".plus(index) else ""
-                    )
-                )
+        setLoadingMessage(
+            this.getApplication<Application>().applicationContext.resources.getString(
+                R.string.loading_image
             )
-            index++
-        }
-        return tempPictureDetailsList
+        )
+        setProgressDialog(true)
+        loadData()
     }
 
-    private fun setLoadingMessage(msg: String) {
-        mImagesLoading.value = msg
+    /**
+     * Gets Response from URL
+     * Maps it into pictures list using [Mapper] into [PictureListMapper]
+     * Gets List of pictures after mapping in [CompletionCallback]
+     * Sets List of pictures after mapping
+     */
+    private fun loadData() {
+        ILoader.load(
+            Companion.IMAGES_URL,
+            PictureListMapper(),
+            object :
+                CompletionCallback<List<Picture>?, Boolean> {
+                override fun completed(response: List<Picture>?, isSuccess: Boolean) {
+                    populate(response, isSuccess)
+                }
+
+            })
+
     }
     //endregion
 
     //region general functions
+    private fun setLoadingMessage(msg: String) {
+        mImagesLoading.value = msg
+    }
+
     private fun setProgressDialog(show: Boolean) {
         progressDialog.set(show)
     }
 
-    /***
-     *  when ViewModel is no longer used and will be destroyed
+    /**
+     * Populate the mapped data
+     *
+     * @param response List of pictures mapped from response
+     * @param isSuccess Mapping status
      */
-    override fun onCleared() {
-        super.onCleared()
+    private fun populate(response: List<Picture>?, isSuccess: Boolean) {
+        setLoadingMessage(
+            if (isSuccess) this.getApplication<Application>().applicationContext.resources.getString(
+                R.string.fetch_image_success
+            ) else this.getApplication<Application>().applicationContext.resources.getString(
+                R.string.fetch_image_fail
+            )
+        )
+        setProgressDialog(false)
+        response?.let { pictures ->
+            val tempPictureDetailsList = HashMap<String, Picture>()
+            for (picture in pictures) {
+                tempPictureDetailsList[picture.id] = picture
+            }
+            tempPictureDetailsList.let {
+                mPictureDetailsList.putAll(it)
+            }
+        }
     }
     //endregion
+
+    companion object {
+        private var IMAGES_URL = "https://pastebin.com/raw/wgkJgazE"
+    }
 }

@@ -6,9 +6,10 @@ import java.io.Serializable
 
 /**
  * Picture Models returned from PasteBin Api
+ * @see [Picture], [ProfileImage], [User], [Category], [Urls], [Links]
  */
-data class Picture(
 
+data class Picture(
     @SerializedName("id")
     @Expose
     var id: String = "",
@@ -47,7 +48,6 @@ data class Picture(
     var links: Links = Links()
 ) : Serializable
 
-
 data class Category(
 
     @SerializedName("id")
@@ -63,7 +63,6 @@ data class Category(
     @Expose
     var links: Links = Links()
 ) : Serializable
-
 
 data class Links(
 
@@ -81,7 +80,6 @@ data class Links(
     var likes: String = ""
 ) : Serializable
 
-
 data class ProfileImage(
 
     @SerializedName("small")
@@ -94,7 +92,6 @@ data class ProfileImage(
     @Expose
     var large: String = ""
 ) : Serializable
-
 
 data class User(
     @SerializedName("id")
