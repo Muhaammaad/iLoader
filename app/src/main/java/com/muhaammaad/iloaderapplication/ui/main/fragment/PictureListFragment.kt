@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.muhaammaad.iloaderapplication.R
@@ -19,6 +18,7 @@ import com.muhaammaad.iloaderapplication.ui.main.adapter.PictureListAdapter
 import com.muhaammaad.iloaderapplication.ui.main.viewmodel.MainViewModel
 import com.muhaammaad.iloaderapplication.util.EndlessRecyclerViewScrollListener
 import com.muhaammaad.iloaderapplication.util.showShortDurationSnackBar
+import org.koin.android.viewmodel.ext.android.viewModel
 
 
 /**
@@ -27,7 +27,7 @@ import com.muhaammaad.iloaderapplication.util.showShortDurationSnackBar
 class PictureListFragment : Fragment() {
 
     private val ITEMS_PER_ROW: Int = 2
-    private var sharedViewModel: MainViewModel? = null
+    private val sharedViewModel: MainViewModel by viewModel()
     private lateinit var mPictureListAdapter: PictureListAdapter
     private lateinit var binding: FragmentPictureListBinding
     private lateinit var mLayoutManager: StaggeredGridLayoutManager
@@ -40,16 +40,10 @@ class PictureListFragment : Fragment() {
         super.onCreateView(inflater, container, savedInstanceState)
         binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_picture_list, container, false)
-        activity?.let {
-            /**
-             *  get view model in activity scope
-             */
-            sharedViewModel = ViewModelProviders.of(it).get(MainViewModel::class.java)
-        }
         binding.viewmodel = sharedViewModel
 
         mPictureListAdapter =
-            PictureListAdapter(activity!!, sharedViewModel?.mPictureDetailsList?.values!!)
+            PictureListAdapter(sharedViewModel.mPictureDetailsList.values)
         mLayoutManager =
             if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 StaggeredGridLayoutManager(
@@ -73,16 +67,14 @@ class PictureListFragment : Fragment() {
      *  initializes all the observables from viewmodel
      */
     private fun initObservers() {
-        sharedViewModel?.let {
-            observeImagesLoading(it)
-        }
+        observeImagesLoading()
     }
 
     /**
      *  Observes and inform user about the status of loading images from viewmodel
      */
-    private fun observeImagesLoading(model: MainViewModel) {
-        model.mImagesLoading.observe(this, Observer {
+    private fun observeImagesLoading() {
+        sharedViewModel.mImagesLoading.observe(this, Observer {
             showShortDurationSnackBar(binding.recyclerView, it)
         })
     }
@@ -91,15 +83,13 @@ class PictureListFragment : Fragment() {
      *  Listener for loading more items if recycler view is scrolled to bottom
      */
     private fun setScrollListenerToLoadMoreItems() {
-        sharedViewModel?.let {
-            val scrollListener = object : EndlessRecyclerViewScrollListener(mLayoutManager) {
-                override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        it.getPictureListData()
-                    }
+        val scrollListener = object : EndlessRecyclerViewScrollListener(mLayoutManager) {
+            override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    sharedViewModel.getPictureListData()
                 }
             }
-            binding.recyclerView.addOnScrollListener(scrollListener)
         }
+        binding.recyclerView.addOnScrollListener(scrollListener)
     }
 }

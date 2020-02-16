@@ -3,7 +3,7 @@ package com.muhaammaad.iloaderapplication.ui.main.viewmodel
 import android.app.Application
 import androidx.databinding.ObservableArrayMap
 import androidx.databinding.ObservableBoolean
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import com.muhaammaad.iloader.base.ILoader
 import com.muhaammaad.iloader.callback.CompletionCallback
 import com.muhaammaad.iloader.util.Mapper
@@ -15,7 +15,7 @@ import com.muhaammaad.iloaderapplication.util.SingleLiveEvent
 /**
  * ViewModel to handle Main Activity view and pictureListFragment
  */
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+class MainViewModel(private val iLoader: ILoader, private val application: Application) : ViewModel() {
 
     //region Member properties
     val mImagesLoading: SingleLiveEvent<String> = SingleLiveEvent()
@@ -26,6 +26,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     //region intialiazer
     init {
         getPictureListData()
+
     }
     //endregion
     //region Image data Fetching
@@ -34,7 +35,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun getPictureListData() {
         setLoadingMessage(
-            this.getApplication<Application>().applicationContext.resources.getString(
+            application.resources.getString(
                 R.string.loading_image
             )
         )
@@ -49,8 +50,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Sets List of pictures after mapping
      */
     private fun loadData() {
-        ILoader.load(
-            Companion.IMAGES_URL,
+        iLoader.load(
+            IMAGES_URL,
             PictureListMapper(),
             object :
                 CompletionCallback<List<Picture>?, Boolean> {
@@ -80,9 +81,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     private fun populate(response: List<Picture>?, isSuccess: Boolean) {
         setLoadingMessage(
-            if (isSuccess) this.getApplication<Application>().applicationContext.resources.getString(
+            if (isSuccess) application.resources.getString(
                 R.string.fetch_image_success
-            ) else this.getApplication<Application>().applicationContext.resources.getString(
+            ) else application.resources.getString(
                 R.string.fetch_image_fail
             )
         )

@@ -10,6 +10,10 @@
         <variable
             name="photo"
             type="com.muhaammaad.iloaderapplication.model.Picture" />
+
+        <variable
+            name="iLoader"
+            type="com.muhaammaad.iloader.base.ILoader" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -35,6 +39,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                app:loader="@{iLoader}"
                 app:placeholder="@{@drawable/ic_placeholder}"
                 app:src="@{photo.urls.regular}" />
 
@@ -54,6 +59,7 @@
                     android:contentDescription="@string/user_profile_photo"
                     android:scaleType="centerCrop"
                     app:errorPlaceholder="@{@drawable/ic_error_placeholder}"
+                    app:loader="@{iLoader}"
                     app:placeholder="@{@drawable/ic_person_placeholder}"
                     app:src="@{photo.user.profileImage.large}" />
             </androidx.cardview.widget.CardView>

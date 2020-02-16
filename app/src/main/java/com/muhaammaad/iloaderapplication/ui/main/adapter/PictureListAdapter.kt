@@ -1,13 +1,15 @@
 package com.muhaammaad.iloaderapplication.ui.main.adapter
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.muhaammaad.iloader.base.ILoader
 import com.muhaammaad.iloaderapplication.R
 import com.muhaammaad.iloaderapplication.databinding.PictureItemLayoutBinding
 import com.muhaammaad.iloaderapplication.model.Picture
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import java.util.*
 
 /**
@@ -18,10 +20,11 @@ class PictureListAdapter// Public Constructor
     /**
      * Context and reference of the arrayList
      */
-    private val mContext: Context, pictures: Collection<Picture>
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    pictures: Collection<Picture>
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), KoinComponent {
 
     private val mPictureDetailArrayList = ArrayList<Picture>()
+    private val iLoader: ILoader by inject()
 
     init {
         mPictureDetailArrayList.addAll(pictures)
@@ -36,8 +39,11 @@ class PictureListAdapter// Public Constructor
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as PictureListItemHolder).pictureItemLayoutBinding.photo =
-            mPictureDetailArrayList[position]
+        (holder as? PictureListItemHolder)?.let {
+            it.pictureItemLayoutBinding.iLoader = iLoader
+            it.pictureItemLayoutBinding.photo =
+                mPictureDetailArrayList[position]
+        }
     }
 
     override fun getItemCount(): Int {
