@@ -29,5 +29,14 @@
             android:layout_gravity="center"
             android:visibility="@{viewmodel.progressDialog ? View.VISIBLE : View.GONE}" />
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="?android:attr/selectableItemBackground"
+            android:onClick="@{() -> viewmodel.getPictureListData()}"
+            android:src="@android:drawable/stat_notify_sync"
+            android:visibility="@{!viewmodel.progressDialog &amp;&amp; viewmodel.mPictureDetailsList.empty ? View.VISIBLE : View.GONE}" />
+
     </FrameLayout>
 </layout>

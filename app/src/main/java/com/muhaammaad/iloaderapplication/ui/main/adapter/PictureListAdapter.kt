@@ -1,13 +1,18 @@
 package com.muhaammaad.iloaderapplication.ui.main.adapter
 
+import android.animation.ObjectAnimator
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
+import androidx.core.animation.doOnEnd
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.muhaammaad.iloader.base.ILoader
 import com.muhaammaad.iloaderapplication.R
 import com.muhaammaad.iloaderapplication.databinding.PictureItemLayoutBinding
 import com.muhaammaad.iloaderapplication.model.Picture
+import kotlinx.android.synthetic.main.picture_item_layout.view.*
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import java.util.*
@@ -43,7 +48,18 @@ class PictureListAdapter// Public Constructor
             it.pictureItemLayoutBinding.iLoader = iLoader
             it.pictureItemLayoutBinding.photo =
                 mPictureDetailArrayList[position]
+            it.pictureItemLayoutBinding.root.setOnClickListener { result -> revertViewAlpa(result.crdLyLike) }
         }
+    }
+
+    private fun revertViewAlpa(view: View) {
+        val shown = view.alpha == 1f
+        val startHeight: Float = if (shown) 1f else 0f
+        val targetHeight: Float = if (shown) 0f else 1f
+        val animator = ObjectAnimator.ofFloat(view, View.ALPHA, startHeight, targetHeight)
+        animator.interpolator = AccelerateInterpolator()
+        animator.duration = 200
+        animator.start()
     }
 
     override fun getItemCount(): Int {

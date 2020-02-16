@@ -20,6 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        android:background="?android:attr/selectableItemBackground"
         app:cardCornerRadius="20dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -62,6 +63,27 @@
                     app:loader="@{iLoader}"
                     app:placeholder="@{@drawable/ic_person_placeholder}"
                     app:src="@{photo.user.profileImage.large}" />
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/crdLyLike"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_margin="10dp"
+                android:alpha="0"
+                app:cardCornerRadius="15dp"
+                app:layout_constraintBottom_toBottomOf="@id/ivMainPhoto"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:gravity="center"
+                    android:text="@{photo.likes + ` Likes`}"
+                    android:textColor="@android:color/black"
+                    android:textSize="12sp" />
             </androidx.cardview.widget.CardView>
 
             <androidx.constraintlayout.widget.ConstraintLayout
